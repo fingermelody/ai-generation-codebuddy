@@ -1,0 +1,34 @@
+---
+description: 
+alwaysApply: true
+enabled: true
+updatedAt: 2026-01-08T10:34:09.692Z
+provider: 
+---
+
+请分析此代码库，并在当前代码库 `.codebuddy/rules` 目录下创建 global.md 文件，该文件将提供给未来的 CodeBuddy 实例在此代码库中运行使用。
+
+需要补充的内容：
+1. 将经常使用的命令包括在内，例如如何构建、如何进行代码检查以及如何运行测试。还要包含在这个代码库中进行开发所必需的命令，比如如何运行单个测试。
+2. High-level的代码架构和结构使得后面能够更快地实现高效运行。重点在于“宏观”的架构设计，这需要阅读多个文件才能理解。
+
+使用说明：
+- 如果该文件已经存在，请对其进行改进，注意不要修改其头部元数据信息。
+- 初始创建该文件时，请勿重复表述内容，也不应包含诸如“为用户提供有用的错误信息”、“为所有新工具编写单元测试”、“绝不在代码或提交中包含敏感信息（API 密钥、令牌）”等明显指示。
+- 避免列出可以轻易获取到的每个组件或文件结构。
+- 不要包含通用的开发实践。
+- 如果存在 “Cursor 规则”（位于“.cursor/rules/”或“.cursorrules”文件夹中）或 “Copilot 规则”（位于“.github/copilot-instructions.md”文件中），请确保包含重要的部分。
+- 如果有“README.md”文件，请确保包含重要的内容。
+- 不要编造诸如“常见开发任务”、“开发技巧”、“支持与文档”等信息，除非这些内容明确包含在您阅读的其他文件中。
+- 确保该文件前有以下文本：
+
+```
+---
+# 注意不要修改本文头文件，如修改，CodeBuddy（内网版）将按照默认逻辑设置
+type: always
+---
+# global.md
+
+This file provides guidance to CodeBuddy when working with code in this repository.
+
+```

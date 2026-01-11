@@ -1,0 +1,217 @@
+.centerCanvas {
+  background: var(--color-secondary);
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvasHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.canvasTitle {
+  font-family: var(--font-display);
+  font-size: 28px;
+}
+
+.canvasActions {
+  display: flex;
+  gap: 12px;
+}
+
+.actionBtn {
+  padding: 10px 16px;
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--color-text) !important;
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.actionBtn:hover {
+  border-color: var(--color-accent) !important;
+  background: var(--color-surface-light) !important;
+}
+
+.actionBtnPrimary {
+  background: linear-gradient(135deg, var(--color-accent), #00A8CC) !important;
+  border: none !important;
+  color: var(--color-secondary) !important;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-md) !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionBtnPrimary:hover {
+  box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
+}
+
+.actionBtnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Image Gallery */
+.imageGallery {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  align-content: start;
+}
+
+.galleryItem {
+  aspect-ratio: 1;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 2px solid transparent;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.galleryItem:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-float);
+}
+
+.galleryItem.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+}
+
+.galleryImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.galleryPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--color-text-muted);
+}
+
+.galleryPlaceholder svg {
+  opacity: 0.3;
+}
+
+.galleryPlaceholder span {
+  font-size: 13px;
+}
+
+.galleryOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.galleryItem:hover .galleryOverlay {
+  opacity: 1;
+}
+
+.overlayActions {
+  display: flex;
+  gap: 8px;
+}
+
+.overlayBtn {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.overlayBtn:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.selectIndicator {
+  width: 24px;
+  height: 24px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* Progress Bar */
+.progressContainer {
+  margin-top: 20px;
+  padding: 20px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.progressLabel {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progressLabel svg {
+  color: var(--color-accent);
+}
+
+.progressTime {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.spinning {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

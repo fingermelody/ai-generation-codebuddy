@@ -1,0 +1,8 @@
+{
+  "name": "img2model3d",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.0.0"
+  }
+}

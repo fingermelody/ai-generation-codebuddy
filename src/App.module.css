@@ -1,0 +1,27 @@
+.app {
+  min-height: 100vh;
+  position: relative;
+}
+
+.mainContainer {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 280px 1fr 360px;
+  gap: 0;
+  height: 100vh;
+  padding-top: 64px;
+}
+
+/* 响应式布局 - 仅桌面端支持 */
+@media (max-width: 1280px) {
+  .mainContainer {
+    grid-template-columns: 260px 1fr 320px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .mainContainer {
+    grid-template-columns: 240px 1fr 300px;
+  }
+}

@@ -1,0 +1,69 @@
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  transition: all 0.2s ease;
+}
+
+/* 尺寸 */
+.small {
+  font-size: 12px;
+  padding: 4px 8px;
+  gap: 4px;
+}
+
+.medium {
+  font-size: 14px;
+}
+
+.large {
+  font-size: 16px;
+  padding: 8px 16px;
+  gap: 10px;
+}
+
+/* 状态样式 */
+.idle {
+  color: var(--color-text-secondary);
+  background: var(--color-bg);
+}
+
+.loading {
+  color: var(--color-primary);
+  background: rgba(0, 217, 255, 0.1);
+}
+
+.success {
+  color: var(--color-success);
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.error {
+  color: var(--color-error);
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.warning {
+  color: var(--color-warning);
+  background: rgba(255, 170, 0, 0.1);
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.message {
+  white-space: nowrap;
+}

@@ -1,0 +1,76 @@
+.adminDialog {
+  --td-dialog-bg-color: var(--color-surface);
+  --td-dialog-header-text-color: var(--color-text);
+}
+
+.adminPanel {
+  padding: 16px 0;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.panelHeader h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  margin: 0;
+}
+
+.tableActions {
+  display: flex;
+  gap: 4px;
+}
+
+/* 覆盖 TDesign 表格样式 */
+:global(.t-table) {
+  --td-table-bg-color: var(--color-surface-light);
+  --td-table-border-color: var(--color-border);
+  --td-table-header-bg-color: var(--color-surface);
+  --td-table-header-text-color: var(--color-text-muted);
+  --td-table-body-text-color: var(--color-text);
+  --td-table-row-hover-bg-color: var(--color-surface);
+  --td-table-row-stripe-bg-color: rgba(0, 217, 255, 0.02);
+}
+
+:global(.t-dialog__body) {
+  color: var(--color-text);
+}
+
+:global(.t-form__label) {
+  color: var(--color-text-muted) !important;
+}
+
+:global(.t-input) {
+  --td-input-bg-color: var(--color-secondary);
+  --td-input-border-color: var(--color-border);
+  --td-input-text-color: var(--color-text);
+}
+
+:global(.t-input:hover) {
+  --td-input-border-color: var(--color-accent);
+}
+
+:global(.t-input:focus-within) {
+  --td-input-border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(0, 217, 255, 0.1);
+}
+
+:global(.t-select-input) {
+  --td-select-input-bg-color: var(--color-secondary);
+  --td-select-input-border-color: var(--color-border);
+}
+
+:global(.t-popup__content) {
+  --td-popup-bg-color: var(--color-surface);
+  --td-popup-border-color: var(--color-border);
+}
+
+:global(.t-select__list) {
+  --td-select-option-text-color: var(--color-text);
+  --td-select-option-hover-bg-color: var(--color-surface-light);
+  --td-select-option-selected-bg-color: rgba(0, 217, 255, 0.1);
+}

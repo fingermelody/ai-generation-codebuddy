@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 生图生 3D - Web 应用 UI 设计稿</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /*
+        ==========================================
+        DESIGN SPECIFICATION
+        ==========================================
+        1. Purpose Statement: 
+           为设计师、创意工作者和AI爱好者打造一站式文生图和图生3D创作平台，
+           整合混元、豆包等多种AI模型，提供流畅的单屏交互体验。
+        
+        2. Aesthetic Direction: Retro-futuristic
+           融合复古科幻感与现代技术美学，营造专业且富有未来感的创作氛围。
+        
+        3. Color Palette:
+           - Primary: #FF6B35 (活力橙)
+           - Secondary: #1A1A2E (深空蓝黑)
+           - Accent: #00D9FF (电光青)
+           - Surface: #16213E (深蓝灰)
+           - Text: #EAEAEA (浅灰白)
+           - Highlight: #F7931E (金橙)
+        
+        4. Typography:
+           - Display: 'DM Serif Display', serif
+           - Body: 'Space Grotesk', sans-serif
+           - Code/Technical: 'JetBrains Mono', monospace
+        
+        5. Layout Strategy:
+           三栏非对称布局，左侧控制面板(280px)，中央画布区(弹性)，
+           右侧3D预览区(360px)。使用斜切角、渐变边框和悬浮卡片打破传统网格。
+        ==========================================
+        */
+
+        :root {
+            --color-primary: #FF6B35;
+            --color-secondary: #1A1A2E;
+            --color-accent: #00D9FF;
+            --color-surface: #16213E;
+            --color-surface-light: #1F2B47;
+            --color-text: #EAEAEA;
+            --color-text-muted: #8892A4;
+            --color-highlight: #F7931E;
+            --color-success: #00C48C;
+            --color-warning: #FFB800;
+            --color-error: #FF4757;
+            --color-border: rgba(0, 217, 255, 0.2);
+            
+            --font-display: 'DM Serif Display', serif;
+            --font-body: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            --shadow-glow: 0 0 40px rgba(0, 217, 255, 0.15);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-secondary);
+            color: var(--color-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background Pattern */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 217, 255, 0.06) 0%, transparent 50%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 50px,
+                    rgba(0, 217, 255, 0.02) 50px,
+                    rgba(0, 217, 255, 0.02) 51px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 50px,
+                    rgba(0, 217, 255, 0.02) 50px,
+                    rgba(0, 217, 255, 0.02) 51px
+                );
+        }
+
+        /* Noise Overlay */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: linear-gradient(180deg, var(--color-secondary) 0%, rgba(26, 26, 46, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--color-border);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-highlight));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            transform: rotate(-5deg);
+        }
+
+        .logo-text {
+            font-family: var(--font-display);
+            font-size: 24px;
+            background: linear-gradient(90deg, var(--color-text), var(--color-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .model-selector:hover {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+        }
+
+        .model-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--color-success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .model-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* Main Layout */
+        .main-container {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 280px 1fr 360px;
+            gap: 0;
+            height: 100vh;
+            padding-top: 64px;
+        }
+
+        /* Left Panel */
+        .left-panel {
+            background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-secondary) 100%);
+            border-right: 1px solid var(--color-border);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .panel-section {
+            background: var(--color-surface-light);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--color-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+        }
+
+        .section-title {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--color-accent);
+        }
+
+        /* Prompt Input */
+        .prompt-textarea {
+            width: 100%;
+            min-height: 120px;
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            color: var(--color-text);
+            font-family: var(--font-body);
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-textarea:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        }
+
+        .prompt-textarea::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        .char-counter {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--color-text-muted);
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        /* Negative Prompt Toggle */
+        .negative-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--color-text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .negative-toggle:hover {
+            color: var(--color-text);
+        }
+
+        .negative-toggle i {
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .negative-toggle.active i {
+            transform: rotate(90deg);
+        }
+
+        /* Parameters */
+        .param-group {
+            margin-bottom: 16px;
+        }
+
+        .param-label {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .param-value {
+            font-family: var(--font-mono);
+            color: var(--color-accent);
+            font-size: 12px;
+        }
+
+        .param-slider {
+            width: 100%;
+            height: 6px;
+            background: var(--color-secondary);
+            border-radius: 3px;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .param-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 217, 255, 0.4);
+        }
+
+        .resolution-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .resolution-option {
+            padding: 10px;
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+
+        .resolution-option:hover {
+            border-color: var(--color-accent);
+        }
+
+        .resolution-option.active {
+            border-color: var(--color-primary);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .resolution-option .size {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin-top: 4px;
+        }
+
+        /* Generate Button */
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-highlight));
+            border: none;
+            border-radius: var(--radius-lg);
+            color: white;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        /* History Section */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: var(--color-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: var(--color-surface);
+        }
+
+        .history-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--color-surface), var(--color-surface-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--color-text-muted);
+        }
+
+        .history-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-title {
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-meta {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            font-family: var(--font-mono);
+        }
+
+        /* Center Canvas */
+        .center-canvas {
+            background: var(--color-secondary);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .canvas-title {
+            font-family: var(--font-display);
+            font-size: 28px;
+        }
+
+        .canvas-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 10px 16px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            border-color: var(--color-accent);
+            background: var(--color-surface-light);
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--color-accent), #00A8CC);
+            border: none;
+            color: var(--color-secondary);
+            font-weight: 600;
+        }
+
+        .action-btn.primary:hover {
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            align-content: start;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 2px solid transparent;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-float);
+        }
+
+        .gallery-item.selected {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--color-text-muted);
+        }
+
+        .gallery-placeholder i {
+            font-size: 48px;
+            opacity: 0.3;
+        }
+
+        .gallery-placeholder span {
+            font-size: 13px;
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .overlay-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .overlay-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .overlay-btn:hover {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .select-indicator {
+            width: 24px;
+            height: 24px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-label i {
+            color: var(--color-accent);
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-time {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--color-text-muted);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--color-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 65%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            border-radius: 4px;
+            position: relative;
+            animation: progress-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes progress-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 217, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 217, 255, 0.8); }
+        }
+
+        /* Right Panel - 3D Preview */
+        .right-panel {
+            background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-secondary) 100%);
+            border-left: 1px solid var(--color-border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .preview-container {
+            flex: 1;
+            background: var(--color-secondary);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--color-border);
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        .preview-3d {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .model-placeholder {
+            text-align: center;
+            color: var(--color-text-muted);
+        }
+
+        .model-placeholder i {
+            font-size: 80px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .model-placeholder p {
+            font-size: 14px;
+        }
+
+        /* 3D Model Visualization */
+        .model-3d {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate3d 10s linear infinite;
+        }
+
+        @keyframes rotate3d {
+            from { transform: rotateY(0deg) rotateX(15deg); }
+            to { transform: rotateY(360deg) rotateX(15deg); }
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(255, 107, 53, 0.1));
+            border: 2px solid var(--color-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: var(--color-accent);
+            backdrop-filter: blur(5px);
+        }
+
+        .cube-face.front { transform: translateZ(100px); }
+        .cube-face.back { transform: rotateY(180deg) translateZ(100px); }
+        .cube-face.right { transform: rotateY(90deg) translateZ(100px); }
+        .cube-face.left { transform: rotateY(-90deg) translateZ(100px); }
+        .cube-face.top { transform: rotateX(90deg) translateZ(100px); }
+        .cube-face.bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+        /* Preview Controls */
+        .preview-controls {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+        }
+
+        .control-btn:hover {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .control-btn.active {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+            color: var(--color-secondary);
+        }
+
+        /* 3D Settings */
+        .settings-section {
+            background: var(--color-surface-light);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--color-border);
+        }
+
+        .format-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .format-chip {
+            padding: 8px 16px;
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            font-size: 13px;
+            font-family: var(--font-mono);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .format-chip:hover {
+            border-color: var(--color-accent);
+        }
+
+        .format-chip.active {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        /* Download Section */
+        .download-section {
+            background: linear-gradient(135deg, var(--color-surface-light), var(--color-surface));
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--color-border);
+        }
+
+        .price-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .price-label {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+
+        .price-value {
+            font-family: var(--font-display);
+            font-size: 28px;
+            color: var(--color-highlight);
+        }
+
+        .price-value span {
+            font-size: 14px;
+            color: var(--color-text-muted);
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--color-success), #00A86B);
+            border: none;
+            border-radius: var(--radius-lg);
+            color: white;
+            font-family: var(--font-body);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 196, 140, 0.4);
+        }
+
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .payment-icon {
+            font-size: 24px;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+
+        .payment-icon:hover {
+            opacity: 1;
+        }
+
+        .payment-icon.wechat { color: #07C160; }
+        .payment-icon.alipay { color: #1677FF; }
+
+        /* Payment Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            width: 400px;
+            max-width: 90%;
+            border: 1px solid var(--color-border);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 24px;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+        }
+
+        .modal-close:hover {
+            background: var(--color-error);
+            border-color: var(--color-error);
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--color-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option:hover {
+            border-color: var(--color-accent);
+        }
+
+        .payment-option.selected {
+            border-color: var(--color-primary);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .payment-option-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .payment-option-icon.wechat {
+            background: rgba(7, 193, 96, 0.1);
+            color: #07C160;
+        }
+
+        .payment-option-icon.alipay {
+            background: rgba(22, 119, 255, 0.1);
+            color: #1677FF;
+        }
+
+        .payment-option-info {
+            flex: 1;
+        }
+
+        .payment-option-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .payment-option-desc {
+            font-size: 12px;
+            color: var(--color-text-muted);
+        }
+
+        .payment-option-check {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--color-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option.selected .payment-option-check {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .order-summary {
+            background: var(--color-secondary);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .order-item:last-child {
+            margin-bottom: 0;
+            padding-top: 12px;
+            border-top: 1px solid var(--color-border);
+            font-weight: 600;
+        }
+
+        .order-item .amount {
+            color: var(--color-highlight);
+        }
+
+        .confirm-payment-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-highlight));
+            border: none;
+            border-radius: var(--radius-lg);
+            color: white;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-payment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Status Tags */
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: var(--radius-lg);
+            font-size: 12px;
+            font-family: var(--font-mono);
+        }
+
+        .status-tag.success {
+            background: rgba(0, 196, 140, 0.1);
+            color: var(--color-success);
+        }
+
+        .status-tag.warning {
+            background: rgba(255, 184, 0, 0.1);
+            color: var(--color-warning);
+        }
+
+        .status-tag.error {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--color-error);
+        }
+
+        /* Tooltips */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-surface-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-accent);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-cube"></i>
+            </div>
+            <span class="logo-text">AI Create 3D</span>
+        </div>
+        
+        <div class="header-actions">
+            <div class="model-selector">
+                <span class="model-indicator"></span>
+                <span class="model-name">混元大模型</span>
+                <i class="fas fa-chevron-down" style="font-size: 10px; color: var(--color-text-muted);"></i>
+            </div>
+            
+            <div class="status-tag success">
+                <i class="fas fa-circle" style="font-size: 6px;"></i>
+                API 正常
+            </div>
+            
+            <div class="user-avatar" data-tooltip="用户中心">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Left Panel -->
+        <aside class="left-panel">
+            <!-- Prompt Section -->
+            <div class="panel-section animate-in delay-1">
+                <div class="section-title">
+                    <i class="fas fa-pen-fancy"></i>
+                    提示词输入
+                </div>
+                <textarea class="prompt-textarea" placeholder="描述你想要生成的图像...&#10;&#10;例如：一只可爱的机械猫，赛博朋克风格，霓虹灯光，高细节，8K渲染">一只可爱的机械猫，赛博朋克风格，霓虹灯光，高细节，8K渲染</textarea>
+                <div class="char-counter">128 / 2000</div>
+                
+                <div class="negative-toggle">
+                    <i class="fas fa-chevron-right"></i>
+                    添加负向提示词
+                </div>
+            </div>
+
+            <!-- Model Selection -->
+            <div class="panel-section animate-in delay-2">
+                <div class="section-title">
+                    <i class="fas fa-robot"></i>
+                    模型选择
+                </div>
+                <div class="model-selector" style="width: 100%; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="model-indicator"></span>
+                        <span class="model-name">混元图像</span>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size: 10px; color: var(--color-text-muted);"></i>
+                </div>
+            </div>
+
+            <!-- Parameters -->
+            <div class="panel-section animate-in delay-3">
+                <div class="section-title">
+                    <i class="fas fa-sliders-h"></i>
+                    生成参数
+                </div>
+                
+                <div class="param-group">
+                    <div class="param-label">
+                        <span>分辨率</span>
+                    </div>
+                    <div class="resolution-grid">
+                        <div class="resolution-option">
+                            <span>标准</span>
+                            <div class="size">512×512</div>
+                        </div>
+                        <div class="resolution-option active">
+                            <span>高清</span>
+                            <div class="size">1024×1024</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="param-group">
+                    <div class="param-label">
+                        <span>生成数量</span>
+                        <span class="param-value">4 张</span>
+                    </div>
+                    <input type="range" class="param-slider" min="1" max="4" value="4">
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <button class="generate-btn animate-in delay-4">
+                <i class="fas fa-magic"></i>
+                生成图像
+            </button>
+
+            <!-- History -->
+            <div class="panel-section" style="flex: 1; min-height: 0;">
+                <div class="section-title">
+                    <i class="fas fa-history"></i>
+                    历史记录
+                </div>
+                <div class="history-list">
+                    <div class="history-item">
+                        <div class="history-thumb">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="history-info">
+                            <div class="history-title">机械猫 赛博朋克</div>
+                            <div class="history-meta">今天 14:32 · 混元</div>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-thumb">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <div class="history-info">
+                            <div class="history-title">未来城市建筑</div>
+                            <div class="history-meta">今天 13:15 · 豆包</div>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-thumb">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="history-info">
+                            <div class="history-title">水晶宝石</div>
+                            <div class="history-meta">昨天 18:45 · 混元</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Canvas -->
+        <section class="center-canvas">
+            <div class="canvas-header">
+                <h1 class="canvas-title">生成结果</h1>
+                <div class="canvas-actions">
+                    <button class="action-btn">
+                        <i class="fas fa-th-large"></i>
+                        网格视图
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-download"></i>
+                        批量下载
+                    </button>
+                    <button class="action-btn primary">
+                        <i class="fas fa-arrow-right"></i>
+                        选中图像生成 3D
+                    </button>
+                </div>
+            </div>
+
+            <div class="image-gallery">
+                <div class="gallery-item selected">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=512&h=512&fit=crop" alt="Generated Image 1">
+                    <div class="gallery-overlay">
+                        <div class="overlay-actions">
+                            <button class="overlay-btn" data-tooltip="放大查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="overlay-btn" data-tooltip="下载">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="select-indicator">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=512&h=512&fit=crop" alt="Generated Image 2">
+                    <div class="gallery-overlay">
+                        <div class="overlay-actions">
+                            <button class="overlay-btn" data-tooltip="放大查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="overlay-btn" data-tooltip="下载">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=512&h=512&fit=crop" alt="Generated Image 3">
+                    <div class="gallery-overlay">
+                        <div class="overlay-actions">
+                            <button class="overlay-btn" data-tooltip="放大查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="overlay-btn" data-tooltip="下载">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1614729939124-032d1e6c9945?w=512&h=512&fit=crop" alt="Generated Image 4">
+                    <div class="gallery-overlay">
+                        <div class="overlay-actions">
+                            <button class="overlay-btn" data-tooltip="放大查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="overlay-btn" data-tooltip="下载">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-header">
+                    <span class="progress-label">
+                        <i class="fas fa-spinner"></i>
+                        正在生成 3D 模型...
+                    </span>
+                    <span class="progress-time">预计剩余 25 秒</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel - 3D Preview -->
+        <aside class="right-panel">
+            <div class="panel-section">
+                <div class="section-title">
+                    <i class="fas fa-cube"></i>
+                    3D 预览
+                </div>
+            </div>
+
+            <div class="preview-container">
+                <div class="preview-3d">
+                    <!-- 3D Model Visualization -->
+                    <div class="model-3d">
+                        <div class="cube-face front"><i class="fas fa-cat"></i></div>
+                        <div class="cube-face back"><i class="fas fa-cat"></i></div>
+                        <div class="cube-face right"><i class="fas fa-cat"></i></div>
+                        <div class="cube-face left"><i class="fas fa-cat"></i></div>
+                        <div class="cube-face top"><i class="fas fa-cat"></i></div>
+                        <div class="cube-face bottom"><i class="fas fa-cat"></i></div>
+                    </div>
+                </div>
+                
+                <div class="preview-controls">
+                    <button class="control-btn active" data-tooltip="旋转">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="control-btn" data-tooltip="缩放">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="control-btn" data-tooltip="平移">
+                        <i class="fas fa-arrows-alt"></i>
+                    </button>
+                    <button class="control-btn" data-tooltip="重置视角">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <i class="fas fa-cog"></i>
+                    输出格式
+                </div>
+                <div class="format-options">
+                    <div class="format-chip active">GLB</div>
+                    <div class="format-chip">OBJ</div>
+                    <div class="format-chip">FBX</div>
+                    <div class="format-chip">GLTF</div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="section-title">
+                    <i class="fas fa-layer-group"></i>
+                    精度级别
+                </div>
+                <div class="param-group" style="margin-bottom: 0;">
+                    <div class="param-label">
+                        <span>模型精度</span>
+                        <span class="param-value">高精度</span>
+                    </div>
+                    <input type="range" class="param-slider" min="1" max="3" value="3">
+                </div>
+            </div>
+
+            <!-- Download Section -->
+            <div class="download-section">
+                <div class="price-display">
+                    <span class="price-label">下载价格</span>
+                    <span class="price-value">¥15 <span>/ 高精度 GLB</span></span>
+                </div>
+                <button class="download-btn" onclick="openPaymentModal()">
+                    <i class="fas fa-download"></i>
+                    付费下载 3D 模型
+                </button>
+                <div class="payment-methods">
+                    <i class="fab fa-weixin payment-icon wechat" data-tooltip="微信支付"></i>
+                    <i class="fab fa-alipay payment-icon alipay" data-tooltip="支付宝"></i>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">确认支付</h2>
+                <button class="modal-close" onclick="closePaymentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="payment-options">
+                <div class="payment-option selected" onclick="selectPayment(this)">
+                    <div class="payment-option-icon wechat">
+                        <i class="fab fa-weixin"></i>
+                    </div>
+                    <div class="payment-option-info">
+                        <div class="payment-option-name">微信支付</div>
+                        <div class="payment-option-desc">扫码或确认支付</div>
+                    </div>
+                    <div class="payment-option-check">
+                        <i class="fas fa-check" style="font-size: 12px; color: white;"></i>
+                    </div>
+                </div>
+                <div class="payment-option" onclick="selectPayment(this)">
+                    <div class="payment-option-icon alipay">
+                        <i class="fab fa-alipay"></i>
+                    </div>
+                    <div class="payment-option-info">
+                        <div class="payment-option-name">支付宝</div>
+                        <div class="payment-option-desc">扫码或跳转支付</div>
+                    </div>
+                    <div class="payment-option-check"></div>
+                </div>
+            </div>
+
+            <div class="order-summary">
+                <div class="order-item">
+                    <span>商品</span>
+                    <span>3D 模型 - 机械猫</span>
+                </div>
+                <div class="order-item">
+                    <span>格式</span>
+                    <span>GLB (高精度)</span>
+                </div>
+                <div class="order-item">
+                    <span>下载次数</span>
+                    <span>3 次</span>
+                </div>
+                <div class="order-item">
+                    <span>应付金额</span>
+                    <span class="amount">¥15.00</span>
+                </div>
+            </div>
+
+            <button class="confirm-payment-btn">
+                <i class="fas fa-lock"></i>
+                确认支付 ¥15.00
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Payment Modal Functions
+        function openPaymentModal() {
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+        }
+
+        function selectPayment(element) {
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePaymentModal();
+            }
+        });
+
+        // Gallery Item Selection
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (!e.target.closest('.overlay-btn')) {
+                    document.querySelectorAll('.gallery-item').forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                }
+            });
+        });
+
+        // Resolution Option Selection
+        document.querySelectorAll('.resolution-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.resolution-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Format Chip Selection
+        document.querySelectorAll('.format-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.format-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Negative Toggle
+        document.querySelector('.negative-toggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+
+        // Control Button Selection
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Character Counter
+        const textarea = document.querySelector('.prompt-textarea');
+        const counter = document.querySelector('.char-counter');
+        
+        textarea.addEventListener('input', function() {
+            counter.textContent = `${this.value.length} / 2000`;
+        });
+
+        // Slider Value Display
+        document.querySelectorAll('.param-slider').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const label = this.closest('.param-group').querySelector('.param-value');
+                if (label) {
+                    if (this.max === '4') {
+                        label.textContent = `${this.value} 张`;
+                    } else if (this.max === '3') {
+                        const levels = ['低精度', '中精度', '高精度'];
+                        label.textContent = levels[this.value - 1];
+                    }
+                }
+            });
+        });
+
+        // Generate Button Animation
+        document.querySelector('.generate-btn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 生成中...';
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-magic"></i> 生成图像';
+            }, 2000);
+        });
+
+        // Model Selector Dropdown (Simulated)
+        document.querySelectorAll('.model-selector').forEach(selector => {
+            selector.addEventListener('click', function() {
+                // In a real app, this would open a dropdown
+                const models = ['混元图像', '豆包图像', '混元 3D', '豆包 3D'];
+                const currentModel = this.querySelector('.model-name').textContent;
+                const currentIndex = models.indexOf(currentModel);
+                const nextIndex = (currentIndex + 1) % models.length;
+                this.querySelector('.model-name').textContent = models[nextIndex];
+            });
+        });
+    </script>
+</body>
+</html>

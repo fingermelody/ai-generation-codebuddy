@@ -1,0 +1,224 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modalOverlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modalContent {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  width: 400px;
+  max-width: 90%;
+  border: 1px solid var(--color-border);
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.modalOverlay.active .modalContent {
+  transform: translateY(0);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modalTitle {
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+
+.modalClose {
+  width: 36px;
+  height: 36px;
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--color-text);
+}
+
+.modalClose:hover {
+  background: var(--color-error);
+  border-color: var(--color-error);
+}
+
+/* Payment Options */
+.paymentOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--color-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.paymentOption:hover {
+  border-color: var(--color-accent);
+}
+
+.paymentOption.selected {
+  border-color: var(--color-primary);
+  background: rgba(255, 107, 53, 0.1);
+}
+
+.paymentOptionIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paymentOptionIcon.wechat {
+  background: rgba(7, 193, 96, 0.1);
+  color: #07C160;
+}
+
+.paymentOptionIcon.alipay {
+  background: rgba(22, 119, 255, 0.1);
+  color: #1677FF;
+}
+
+.paymentOptionInfo {
+  flex: 1;
+}
+
+.paymentOptionName {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.paymentOptionDesc {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.paymentOptionCheck {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.paymentOption.selected .paymentOptionCheck {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* QR Code Section */
+.qrCodeSection {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: var(--radius-lg);
+}
+
+.qrCodeImage {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 12px;
+}
+
+.qrCodeTip {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Order Summary */
+.orderSummary {
+  background: var(--color-secondary);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.orderItem:last-child {
+  margin-bottom: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  font-weight: 600;
+}
+
+.orderItem .amount {
+  color: var(--color-highlight);
+}
+
+/* Confirm Button */
+.confirmPaymentBtn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-highlight)) !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  color: white !important;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.confirmPaymentBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+}
+
+/* Payment Tip */
+.paymentTip {
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 16px;
+}
