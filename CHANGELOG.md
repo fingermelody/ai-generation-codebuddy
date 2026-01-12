@@ -5,9 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [1.1.0] - 2026-01-12
 
 ### Added
-- 新增 `mr` Skill - 智能代码提交工具，支持自动分析变更、生成规范 commit message、发版流程
-- 新增 `rollback` Skill - 代码版本回退工具，支持 revert（安全）和 reset（紧急）两种模式
+- 新增 `mr` Command - 智能代码提交工具，支持自动分析变更、生成规范 commit message、发版流程
+- 新增 `rollback` Command - 代码版本回退工具，支持 revert（安全）和 reset（紧急）两种模式
 - 更新 `global.md` - 添加 Git 工作流和版本控制说明
+
+### Changed
+- 将 `mr` 和 `rollback` 从 Skill 格式重构为 Command 格式，支持 `/mr` 和 `/rollback` 显式调用
 
 ## [1.0.0] - 2026-01-12
 
