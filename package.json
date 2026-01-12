@@ -1,6 +1,6 @@
 {
   "name": "we3d-ai-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "AI 生图生 3D Web 应用 - 基于腾讯云开发",
   "type": "module",
   "scripts": {
